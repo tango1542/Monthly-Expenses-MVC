@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Expenses</title>
+</head>
+<body>
+
+</body>
+</html><html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+
+
+    <title>Create Expense</title>
+</head>
+<body>
+
+
+<h1 class="center">Add New Expense</h1>
+
+
+<div id="centerButtons">
+    <a href="/" class="button button-outline">Add New Expense</a>
+    <a href="/allExpenses" class="button button-outline">Spending Events Table</a>
+    <a href="/categoriesTable" class="button button-outline">Categories Table</a>
+    <a th:href="'/deleteAll/'" class="button button-outline" id="delete_button">Delete All Entries</a>
+</div>
+
+
+
+<div id="squeeze">
+
+<!--This form is creating a new expense object, and doing a post to the addExpense page    -->
+<form action="#" method="POST" th:action="@{/addExpense}" th:object="${expense}">
+    <input type = "date" placeholder="date" th:field="*{dayt}" />
+    <br><br>
+<!--Could not get amount out of the 0.0 format.  If the user tabs to it, the curser will be on the right side of the decimal.  Need to fix-->
+    <input type = "text" value="0" placeholder="0" th:field="*{amount}" />
+
+    <br><br>
+    <input type = "text" placeholder="description" th:field="*{description}" />
+    <br><br>
+
+    <select name = "category" th:field="*{category}">
+
+        <!--Couldn't get the disabled selected "Select Category" value working properly.  It keeps defaulting to the first select item-->
+        <option value="" disabled selected>Select Category</option>
+        <option value="Mortgage/Rent">Mortgage/Rent</option>
+        <option value="Monthly Bills">Monthly Bills</option>
+        <option value="Eating Out">Eating Out</option>
+        <option value="Groceries/Target">Groceries/Target</option>
+        <option value="Medical">Medical</option>
+        <option value="Pets">Pets</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Travel">Travel</option>
+        <option value="Amazon">Amazon</option>
+        <option value="Gifts">Gifts</option>
+        <option value="Clothing">Clothing</option>
+    </select>
+    <br><br>
+
+    <br>
+    <button id = "add-expense">Add Expense</button>
+
+</form>
+</div>
+
+<!--This script is to have an alert box popup to ask the user if they are sure that they want to delete all entries.-->
+<script>
+    var deleteButtons = document.getElementById("delete_button");
+
+    for (var x=0; x < deleteButtons.length; x++) {
+        deleteButtons[x].addEventListener("click", function(event) {
+            var sure = confirm("Did you actually do that?");
+            if (!sure) {
+                event.preventDefault();
+            }
+        });
+    }
+
+    delete_button.addEventListener("click", function(event){
+        var sure = confirm("Delete all entries?");
+        if (!sure) {
+            event.preventDefault();   // don't actually click the button or send a request to the server.
+        }
+    });
+</script>
+
+</body>
+
+</html>

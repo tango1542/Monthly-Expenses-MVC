@@ -1,0 +1,219 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<head>
+
+    <!--Milligram stylesheet-->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+
+    <!--Custom stylesheet-->
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+
+    <title>Spending Events</title>
+
+</head>
+<body>
+
+<h1 class="center">Spending Events Table</h1>
+
+<div id="centerButtons">
+<a href="/" class="button button-outline">Add New Expense</a>
+<a href="/allExpenses" class="button button-outline">Spending Events Table</a>
+<a href="/categoriesTable" class="button button-outline">Categories Table</a>
+<a th:href="'/deleteAll/'" class="button button-outline" id="delete_button">Delete All Entries</a>
+</div>
+<br><br>
+
+<!--This is printing the sum, javascript below-->
+<h2 id="valCenter"><span id="val" ></span></h2>
+<h5 class="center">Click on Table Header to sort</h5>
+
+
+<table id = "table">
+    <tr>
+        <th></th>
+        <th></th>
+        <!--<th>ID</th>-->
+        <th onclick="sortTable(3)">DATE</th>
+        <th onclick="sortTable(4)">AMOUNT($)</th>
+        <th onclick="sortTable(5)">DESCRIPTION</th>
+        <th onclick="sortTable(6)">CATEGORY</th>
+    </tr>
+    <tr th:each="expense : ${expenses}">
+        <td><button class="modify-button" th:id="'modify-button-' + ${expense.id}" >Modify Entry</button></td>
+        <td><a th:href="'/delete/' + ${expense.id}" class="button">Delete Entry</button></a></td>
+        <!--Hiding the expense ID-->
+        <td th:id="'expense-id-'+${expense.id}" hidden th:text="${expense.id}"></td>
+        <!--th:text is creating a substring of the date that is splitting it from the index of 5-10 so the year, as well as the time stamp is cut out-->
+        <td th:id="'expense-date-'+${expense.id}" th:text="${#strings.substring(expense.dayt,5,10)}"></td>
+        <!--numbers.formatDecimal is taking the amount and making it be 2 decimal points.-->
+        <!--Added '$' + to put a $ sign in front of the amount, but it makes the sum be NaN-->
+        <td th:id="'expense-amount-'+${expense.id}" th:text="${#numbers.formatDecimal(expense.amount, 0, 2)}"</td>
+        <!--th:text is capitalizing all of the descriptions-->
+        <td th:id="'expense-description-'+${expense.id}" th:text="${#strings.capitalize(expense.description)}"></td>
+        <td th:id="'expense-category-'+${expense.id}" th:text="${expense.category}"></td>
+
+    </tr>
+
+</table>
+
+<!--This js gets the total of the amount column.-->
+<!--Used this tutorial as a guide to get the total-->
+<!--https://1bestcsharp.blogspot.com/2017/08/javascript-table-column-values-sum.html-->
+<script>
+    var table = document.getElementById("table"), sumVal = 0;
+
+    for(var i = 1; i < table.rows.length; i++)
+    {
+        // This is getting the total from the 5th column, amount [4]
+        sumVal = sumVal + parseInt(table.rows[i].cells[4].innerHTML);
+    }
+
+    document.getElementById("val").innerHTML = "TOTAL: $" + sumVal;
+    console.log(sumVal);
+
+</script>
+
+
+
+<!--Used W3 schools tutorial as a guide to sorting by clicking on column headers.-->
+<!--https://www.w3schools.com/howto/howto_js_sort_table.asp-->
+<!--The amount and date sorting to not work.  I need to fix them.-->
+
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("table");
+        switching = true;
+        //Set the sorting direction to ascending:
+        dir = "asc";
+        /*Make a loop that will continue until
+        no switching has been done:*/
+        while (switching) {
+            //start by saying: no switching is done:
+            switching = false;
+            rows = table.getElementsByTagName("TR");
+            /*Loop through all table rows (except the
+            first, which contains table headers):*/
+            for (i = 1; i < (rows.length - 1); i++) {
+                //start by saying there should be no switching:
+                shouldSwitch = false;
+                /*Get the two elements you want to compare,
+                one from current row and one from the next:*/
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /*check if the two rows should switch place,
+                based on the direction, asc or desc:*/
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch= true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch= true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /*If a switch has been marked, make the switch
+                and mark that a switch has been done:*/
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                //Each time a switch is done, increase this count by 1:
+                switchcount ++;
+            } else {
+                /*If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again.*/
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+
+
+<!--This script is to have an alert box popup to ask the user if they are sure that they want to delete all entries.-->
+<script>
+    var deleteButtons = document.getElementById("delete_button");
+
+    for (var x=0; x < deleteButtons.length; x++) {
+        deleteButtons[x].addEventListener("click", function(event) {
+            var sure = confirm("Did you actually do that?");
+            if (!sure) {
+                event.preventDefault();
+            }
+        });
+    }
+
+    delete_button.addEventListener("click", function(event){
+        var sure = confirm("Delete all entries?");
+        if (!sure) {
+            event.preventDefault();   // don't actually click the button or send a request to the server.
+        }
+    });
+</script>
+
+
+<!-- Modal form added here.  Used W3 schools tutorial for modal. -->
+<div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="close">&times;</span>
+
+        <form action="/updateExpense" method="POST" th:action="@{/updateExpense}">
+
+            <input id="modal-edit-id" name="id" type="hidden" class="form-control"/>
+            <input id="modal-edit-description" name="description" type="text" placeholder="description" class="form-control"/>
+            <!--When the modal for date comes up, and I modify, I am losing the previously entered date.  Need to fix-->
+            <input id="modal-edit-date" name="dayt" type = "date" placeholder="date" />
+            <input id="modal-edit-amount" name="amount" type = "text" placeholder="amount" />
+            <!--<input id="modal-edit-category" name="category" type = "text" placeholder="category" />-->
+            <select id="modal-edit-category" name = "category">
+                <option value="Mortgage/Rent">Mortgage/Rent</option>
+                <option value="Monthly Bills">Monthly Bills</option>
+                <option value="Eating Out">Eating Out</option>
+                <option value="Groceries/Target">Groceries/Target</option>
+                <option value="Medical">Medical</option>
+                <option value="Pets">Pets</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Travel">Travel</option>
+                <option value="Amazon">Amazon</option>
+                <option value="Gifts">Gifts</option>
+                <option value="Clothing">Clothing</option>
+            </select>
+
+            <button type="submit">Update</button>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+<br><br>
+
+<br>
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+<script src="js/modals.js"></script>
+<script type="text/javascript" src="js/modals.js"></script>
+
+
+</body>
+</html>
